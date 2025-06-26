@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Risk Dashboard</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f8f8f8; }
+        table { border-collapse: collapse; width: 100%; background: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #222; color: white; }
+        .High { background-color: #ffcccc; }
+        .Medium { background-color: #ffe5b4; }
+        .Low { background-color: #ccffcc; }
+        .Unknown { background-color: #eeeeee; }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            margin: 5px 5px 20px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>📡 Network Risk Dashboard</h2>
+
+    <form action="/scan" method="get">
+        <button class="btn" name="mode" value="quick">Quick Scan</button>
+        <button class="btn" name="mode" value="full">Full Scan</button>
+    </form>
+
+    {% if data %}
+    <table>
+        <thead>
+            <tr>
+                <th>Host</th>
+                <th>Status</th>
+                <th>Port</th>
+                <th>Protocol</th>
+                <th>Service</th>
+                <th>State</th>
+                <th>Risk</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+            <tr class="{{ row.Risk }}">
+                <td>{{ row.Host }}</td>
+                <td>{{ row.Status }}</td>
+                <td>{{ row.Port }}</td>
+                <td>{{ row.Protocol }}</td>
+                <td>{{ row.Service }}</td>
+                <td>{{ row.State }}</td>
+                <td>{{ row.Risk }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <p>No scan data available. Click a scan button to begin.</p>
+    {% endif %}
+
+    <script src="/static/js/scan.js"></script>
+</body>
+</html>

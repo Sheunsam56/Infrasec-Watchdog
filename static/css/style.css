@@ -1,0 +1,34 @@
+/* static/css/style.css */
+
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f8f8f8;
+}
+
+.device {
+    border: 2px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 8px;
+}
+
+.High { background-color: #ffcccc; }
+.Medium { background-color: #ffe5b4; }
+.Low { background-color: #ccffcc; }
+.Unknown { background-color: #eeeeee; }
+
+.btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.btn:hover {
+    background: #0056b3;
+}
