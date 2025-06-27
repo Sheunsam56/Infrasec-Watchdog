@@ -24,25 +24,39 @@ def scan():
 
 @app.route('/api/scan-results')
 def api_results():
+    # Check if the CSV file exists
     if not os.path.exists('results.csv'):
         return jsonify([])
-    df = pd.read_csv('results.csv')
+
+    # Load the scan results
+    try:
+        df = pd.read_csv('results.csv')
+    except Exception as e:
+        print(f"[ERROR] Failed to read CSV: {e}")
+        return jsonify([])
+
     grouped = {}
+
     for _, row in df.iterrows():
         host = row['Host']
         port = row['Port']
         risk = row['Risk']
+
         if host not in grouped:
             grouped[host] = {
                 'ip': host,
                 'open_ports': [],
                 'risk_level': 'Low'
             }
+
         grouped[host]['open_ports'].append(port)
+
+        # Risk level logic
         if risk == 'High':
             grouped[host]['risk_level'] = 'High'
         elif risk == 'Medium' and grouped[host]['risk_level'] != 'High':
             grouped[host]['risk_level'] = 'Medium'
+
     return jsonify(list(grouped.values()))
 
 if __name__ == '__main__':

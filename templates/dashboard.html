@@ -3,6 +3,8 @@
 <head>
     <title>Network Risk Dashboard</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js CDN -->
+
     <style>
         body { font-family: Arial; padding: 20px; background: #f8f8f8; }
         table { border-collapse: collapse; width: 100%; background: white; }
@@ -25,19 +27,53 @@
         .btn:hover {
             background: #0056b3;
         }
+        #progress-bar-container {
+            display: none;
+            margin: 20px 0;
+        }
+        #progress-bar {
+            height: 20px;
+            width: 0%;
+            background: #007bff;
+            border-radius: 8px;
+        }
+        #metrics {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .metric {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 5px;
+            border-radius: 5px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
     <h2>📡 Network Risk Dashboard</h2>
 
+    <!-- Buttons -->
     <form action="/scan" method="get">
         <button class="btn" name="mode" value="quick">Quick Scan</button>
         <button class="btn" name="mode" value="full">Full Scan</button>
     </form>
 
+    <!-- Progress Bar -->
+    <div id="progress-bar-container">
+        <p id="progress-message">🔄 Starting scan...</p>
+        <div style="background:#ccc; height:20px; width:50%; border-radius:8px;">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- Scan Results Table -->
     {% if data %}
-    <table>
+    <table id="results-table">
         <thead>
             <tr>
                 <th>Host</th>
@@ -66,6 +102,25 @@
     {% else %}
         <p>No scan data available. Click a scan button to begin.</p>
     {% endif %}
+
+    <!-- Metrics -->
+    <div id="metrics">
+        <div class="metric">
+            <h3 id="total-hosts">0</h3>
+            <p>Total Hosts</p>
+        </div>
+        <div class="metric">
+            <h3 id="total-open">0</h3>
+            <p>Open Ports</p>
+        </div>
+        <div class="metric">
+            <h3 id="high-risk">0</h3>
+            <p>High Risk Devices</p>
+        </div>
+    </div>
+
+    <!-- Chart.js Risk Pie Chart -->
+    <canvas id="riskChart" width="400" height="200"></canvas>
 
     <script src="/static/js/scan.js"></script>
 </body>

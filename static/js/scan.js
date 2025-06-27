@@ -1,51 +1,83 @@
 async function fetchScanResults() {
     const res = await fetch('/api/scan-results');
     const data = await res.json();
+
     const container = document.getElementById('results');
-    container.innerHTML = '';
+    const tableBody = document.querySelector('#results-table tbody');
+    const totalHosts = document.getElementById('total-hosts');
+    const openPorts = document.getElementById('open-ports');
+    const highRiskDevices = document.getElementById('high-risk');
+
+    // Hide progress bar after scan is fetched
+    document.getElementById('progress-bar-container').style.display = 'none';
 
     if (!data || data.length === 0) {
-        container.innerHTML = '<p>No results found.</p>';
+        container.innerHTML = '<p>No scan results found.</p>';
         return;
     }
 
-    // Create table
-    const table = document.createElement('table');
-    table.innerHTML = `
-        <thead>
-            <tr>
-                <th>Host</th>
-                <th>Status</th>
-                <th>Port</th>
-                <th>Protocol</th>
-                <th>Service</th>
-                <th>State</th>
-                <th>Risk</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    `;
+    let hostCount = 0;
+    let portCount = 0;
+    let highRiskCount = 0;
 
-    const tbody = table.querySelector('tbody');
+    // Clear table before inserting new rows
+    tableBody.innerHTML = '';
 
-    data.forEach(row => {
-        const tr = document.createElement('tr');
-        tr.className = row.risk_level;  // High, Medium, Low — used for CSS styling
+    data.forEach(device => {
+        hostCount++;
+        portCount += device.open_ports.length;
+        if (device.risk_level === 'High') highRiskCount++;
 
-        tr.innerHTML = `
-            <td>${row.host}</td>
-            <td>${row.status}</td>
-            <td>${row.port}</td>
-            <td>${row.protocol}</td>
-            <td>${row.service}</td>
-            <td>${row.state}</td>
-            <td>${row.risk_level}</td>
-        `;
+        device.open_ports.forEach(port => {
+            const row = document.createElement('tr');
+            row.className = device.risk_level;
 
-        tbody.appendChild(tr);
+            row.innerHTML = `
+                <td>${device.ip}</td>
+                <td>up</td>
+                <td>${port}</td>
+                <td>tcp</td>
+                <td>${getServiceName(port)}</td>
+                <td>open</td>
+                <td>${device.risk_level}</td>
+            `;
+            tableBody.appendChild(row);
+        });
     });
 
-    container.appendChild(table);
+    totalHosts.textContent = hostCount;
+    openPorts.textContent = portCount;
+    highRiskDevices.textContent = highRiskCount;
 }
 
+function getServiceName(port) {
+    const services = {
+        21: 'ftp', 22: 'ssh', 23: 'telnet', 53: 'domain',
+        80: 'http', 135: 'msrpc', 443: 'https', 3306: 'mysql', 3389: 'rdp'
+    };
+    return services[port] || 'unknown';
+}
+
+// Show progress when scan button is clicked
+document.querySelectorAll('form[action="/scan"]').forEach(form => {
+    form.addEventListener('submit', () => {
+        document.getElementById('progress-bar-container').style.display = 'block';
+        simulateProgressBar();  // optional fake animation
+    });
+});
+
+// Call scan results when page is loaded
 window.addEventListener('DOMContentLoaded', fetchScanResults);
+
+function simulateProgressBar() {
+    const bar = document.getElementById('progress-bar');
+    const message = document.getElementById('progress-message');
+    bar.style.width = '0%';
+    let progress = 0;
+
+    const interval = setInterval(() => {
+        progress += 10;
+        bar.style.width = progress + '%';
+        if (progress >= 100) clearInterval(interval);
+    }, 200);
+}
